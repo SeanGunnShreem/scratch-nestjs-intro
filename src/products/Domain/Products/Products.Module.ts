@@ -1,15 +1,15 @@
 import { Module } from "@nestjs/common";
-import {DeleteProduct} from "./DeleteProduct";
-import {FindProduct} from "./FindProduct";
-import {GetSingleProduct} from "./GetSingleProduct";
-import {InsertProduct} from "./InsertProduct";
-import {UpdateProduct} from "./UpdateProduct";
+import {DeleteProduct} from "./DeleteProducts";
+import {FindProduct} from "./FindProducts";
+import {GetSingleProduct} from "./GetSingleProducts";
+import {AddProducts} from "./AddProducts";
+import {UpdateProduct} from "./UpdateProducts";
 
 @Module({
     controllers:[],
     imports:[DeleteProduct,FindProduct,GetSingleProduct,
-        InsertProduct,UpdateProduct],
+        AddProducts,UpdateProduct],
     exports:[DeleteProduct,FindProduct,GetSingleProduct,
-    InsertProduct,UpdateProduct],
+    AddProducts,UpdateProduct],
 })
 export class ProductsModule{}
