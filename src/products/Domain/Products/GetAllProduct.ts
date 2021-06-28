@@ -4,16 +4,15 @@ import { IProductsRepository, ProductsRepository } from "./IProductsRepository";
 
 
 @Injectable()
-export class DeleteProduct{
+export class GetAllProducts{
     constructor(
         @ProductsRepository() private readonly productRepository: IProductsRepository,
-
     ){}
 
-
-    public async DeleteProduct(prodId: string):Promise<void>{
-        const product = await this.productRepository.RemoveProduct(prodId);
-        return product;
+        
+    public async GetAllProducts():Promise<IProducts>{
+        const product = await this.productRepository.GetAllProducts();
+        return {...product};
     }
 
 }

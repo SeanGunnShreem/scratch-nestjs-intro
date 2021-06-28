@@ -9,6 +9,15 @@ export class ProductsRepository implements IProductsRepository{
     constructor(@InjectModel('Product') private readonly product:ProductModel<IProductEntity>){
         //private Product[];
     }
+    /*
+    private findProduct(id: string): [Product, number]{
+        const productIndex = this.products.findIndex((prod) => prod.id == id);
+       const product = this.products[productIndex];
+        if(!product){
+             throw new NotFoundException('Could not find the product.');
+        }
+        return [product, productIndex];
+    }*/
 
     public AddProduct(prodId:string, prodTitle: string, prodDescript: string, prodPrice: number): Promise<IProductEntity>{
         const newGeneratedProduct:IProductEntity 

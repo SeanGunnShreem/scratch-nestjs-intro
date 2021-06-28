@@ -1,17 +1,17 @@
-import { isNull, isNumber, isString } from "util";
+import { isNumber, isString } from "util";
 
 //the product DTO we receive from the client
 export class CreateProductDTO{
-    @isString()
+    //@isString()
     public id: string;
 
-    @isString()
+    //@isString()
     public title: string;
 
-    @isString()
+    //@isString()
     public description: string;
 
-    @isNumber()
+    //@isNumber()
     public price: number;
 }
 
