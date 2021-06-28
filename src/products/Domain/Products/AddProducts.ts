@@ -4,7 +4,7 @@ import { IProductsRepository, ProductsRepository } from "./IProductsRepository";
 
 
 @Injectable()
-export class InsertProducts{
+export class AddProducts{
     constructor(
         @ProductsRepository() private readonly productRepository: IProductsRepository,
 
