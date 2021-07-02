@@ -1,18 +1,18 @@
-import { isNumber, isString } from "util";
+import{IsString,IsInt} from 'class-validator';
 
 //the product DTO we receive from the client
 export class CreateProductDTO{
-    //@isString()
-    public id: string;
+    @IsString()
+    readonly id: string;
 
-    //@isString()
-    public title: string;
+    @IsString()
+    readonly title: string;
 
-    //@isString()
-    public description: string;
+    @IsString()
+    readonly description: string;
 
-    //@isNumber()
-    public price: number;
+    @IsInt()
+    readonly price: number;
 }
 
 

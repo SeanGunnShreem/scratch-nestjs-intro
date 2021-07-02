@@ -1,34 +1,111 @@
-import { Controller, Post, Body, Get, Param, Patch, Delete} from "@nestjs/common";
+import { Controller, Post, Body, Get, Param, Patch, Delete, HttpException, HttpStatus, UseFilters, UsePipes, CacheKey, CacheTTL, UseInterceptors, CacheInterceptor, Render} from "@nestjs/common";
 import { ProductsService } from "./products.service";
+import { ProductDTO } from "./API/Products/CreateProductsDTo";
+import {Product} from './Domain/Products/IProducts';
+import {HttpExceptionFilter} from './Utilities/Filters/http-exception.filter';
+import { ValidationPipe } from "./Utilities/Pipes/validation.pipe";
+import { ProductData } from "./Utilities/decorators/productsData.decorator";
+import {BenchmarkInterceptor} from "./Utilities/interceptors/benchmark.interceptors";
+import { Product } from "./product.model";
+
 @Controller('products')
+@UseInterceptors(CacheInterceptor, BenchmarkInterceptor)
+//@UseFilters(HttpExceptionFilter)
+//@UsePipes(ValidationPipe)
 export class ProductsContoller {
     constructor(private readonly productsService: ProductsService){}
 
     @Post()
-    addProducts(@Body('title') prodTitle: string, @Body('description') prodDescript: string, @Body('price') prodPrice: number,): any{
-        const generatedId = this.productsService.insertProduct(prodTitle,prodDescript,prodPrice);
-        return{id: generatedId};
+    @CacheKey('oneProductCreate')
+    @CacheTTL(30)
+    addProducts(@ProductData() prod: ProductDTO) :Promise<Product>{
+        return this.productsService.create(prod).catch(() =>{
+            throw new HttpException('Product not created', HttpStatus.NOT_IMPLEMENTED);
+        });
+        /*const generatedId = this.productsService.insertProduct(prodTitle,prodDescript,prodPrice);
+        return{id: generatedId};*/
     }
 
+    //Get function before MVC
+    /*@Get()
+    @CacheKey('allProductGet')
+    @CacheTTL(30)
+    getAll():Promise<Product>{
+        return this.productsService.findAll().then((result)=>{
+            if(result){
+                return result;
+            }else{
+                throw new HttpException('Product not found', HttpStatus.NOT_FOUND);
+            }
+        }).catch(() =>{
+            throw new HttpException('Product not found', HttpStatus.NOT_FOUND);
+        });
+    }*/
     @Get()
-    getAllProducts(){
-        return this.productsService.getProducts();
+    @CacheKey('allProductGet')
+    @CacheTTL(30)
+    @Render('job/index')
+    root(){
+        return this.productsService.findAll().then((result)=>{
+            if(result){
+                return {product: result};
+            }else{
+                return {product:[]};
+                //throw new HttpException('Product not found', HttpStatus.NOT_FOUND);
+            }
+        }).catch(() =>{
+            throw new HttpException('Product not found', HttpStatus.NOT_FOUND);
+        });
     }
 
     @Get(':id')
-    getProduct(@Param('id') prodId: string){
-        return this.productsService.getSingleProduct(prodId);
+    @CacheKey('oneProductGet')
+    @CacheTTL(30)
+    getProduct(@Param('id') prodId) :Promise<Product>{
+        return this.productsService.find(prodId)
+        .then((result)=>{
+            if(result){
+                return result;
+            }else{
+                throw new HttpException('Product not found', HttpStatus.NOT_FOUND);
+            }
+        }).catch(() =>{
+            throw new HttpException('Product not found', HttpStatus.NOT_FOUND);
+        });
+        //return this.productsService.getSingleProduct(prodId);
     }
 
     @Patch(':id')
-    updateProduct(@Param('id') prodId: string, @Body('title') prodTitle: string, @Body('descr') prodDescr: string, @Body('price') prodIdPrice: number){
-        this.productsService.updateProduct(prodId,prodTitle,prodDescr,prodIdPrice);
-        return null;
+    @CacheKey('oneProductUpdate')
+    @CacheTTL(30)
+    updateProduct(@Param('id') prodId, @Body() prod: ProductDTO):Promise<Product>{
+        return this.productsService.update(prodId, prod).then((result)=>{
+            if(result){
+                return result;
+            }else{
+                throw new HttpException('Product not found', HttpStatus.NOT_FOUND);
+            }
+        }).catch(() =>{
+            throw new HttpException('Product not found', HttpStatus.NOT_FOUND);
+        });
+        /*this.productsService.updateProduct(prodId,prodTitle,prodDescr,prodIdPrice);
+        return null;*/
     }
 
     @Delete(':id')
-    removeProduct(@Param('id') prodId: string){
-        this.productsService.deleteProduct(prodId);
-        return null;
+    @CacheKey('oneProductDelete')
+    @CacheTTL(30)
+    removeProduct(@Param('id') prodId):Promise<Product>{
+        return this.productsService.delete(prodId).then((result)=>{
+            if(result){
+                return result;
+            }else{
+                throw new HttpException('Product not found', HttpStatus.NOT_FOUND);
+            }
+        }).catch(() =>{
+            throw new HttpException('Product not found', HttpStatus.NOT_FOUND);
+        });
+        /*this.productsService.deleteProduct(prodId);
+        return null;*/
     }
 }
