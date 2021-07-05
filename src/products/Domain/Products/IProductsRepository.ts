@@ -1,12 +1,13 @@
 import {Inject}from'@nestjs/common';
 import{IProducts}from'./IProducts';
+import { ProductDTO } from "src/products/API/Products/ProductDTO";
 
 export interface IProductsRepository{
-    AddProduct(prodId:string, prodTitle: string, prodDescript: string, prodPrice: number):Promise<IProducts>;
-    GetAllProducts():Promise<IProducts>;
-    GetProduct(prodId:string):Promise<IProducts>;
-    UpdateProduct(prodId: string, prodTitle: string, prodDescr: string, prodIdPrice: number):Promise<void>;
-    RemoveProduct(prodId: string):Promise<void>;
+    AddProduct(product: ProductDTO):Promise<IProducts>;
+    GetAllProducts():Promise<IProducts[]>;
+    GetProduct(productId: string):Promise<IProducts>;
+    UpdateProduct(productId: string, prod: ProductDTO):Promise<IProducts>;
+    RemoveProduct(productId: string):Promise<IProducts>;
 }
 
 export const ProductsRepository = (): any => Inject('ProductsRepository');

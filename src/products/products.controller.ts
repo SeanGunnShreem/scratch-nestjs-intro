@@ -1,12 +1,12 @@
 import { Controller, Post, Body, Get, Param, Patch, Delete, HttpException, HttpStatus, UseFilters, UsePipes, CacheKey, CacheTTL, UseInterceptors, CacheInterceptor, Render} from "@nestjs/common";
-import { ProductsService } from "./products.service";
-import { ProductDTO } from "./API/Products/CreateProductsDTo";
-import {Product} from './Domain/Products/IProducts';
+import { ProductsService } from "./Persistence/Products/Products.service";
+import { ProductDTO } from "./API/Products/ProductDTO";
+import {IProducts} from './Domain/Products/IProducts';
 import {HttpExceptionFilter} from './Utilities/Filters/http-exception.filter';
 import { ValidationPipe } from "./Utilities/Pipes/validation.pipe";
 import { ProductData } from "./Utilities/decorators/productsData.decorator";
 import {BenchmarkInterceptor} from "./Utilities/interceptors/benchmark.interceptors";
-import { Product } from "./product.model";
+
 
 @Controller('products')
 @UseInterceptors(CacheInterceptor, BenchmarkInterceptor)
@@ -18,7 +18,7 @@ export class ProductsContoller {
     @Post()
     @CacheKey('oneProductCreate')
     @CacheTTL(30)
-    addProducts(@ProductData() prod: ProductDTO) :Promise<Product>{
+    addProducts(@ProductData() prod: ProductDTO) :Promise<IProducts>{
         return this.productsService.create(prod).catch(() =>{
             throw new HttpException('Product not created', HttpStatus.NOT_IMPLEMENTED);
         });
@@ -61,7 +61,7 @@ export class ProductsContoller {
     @Get(':id')
     @CacheKey('oneProductGet')
     @CacheTTL(30)
-    getProduct(@Param('id') prodId) :Promise<Product>{
+    getProduct(@Param('id') prodId) :Promise<IProducts>{
         return this.productsService.find(prodId)
         .then((result)=>{
             if(result){
@@ -78,7 +78,7 @@ export class ProductsContoller {
     @Patch(':id')
     @CacheKey('oneProductUpdate')
     @CacheTTL(30)
-    updateProduct(@Param('id') prodId, @Body() prod: ProductDTO):Promise<Product>{
+    updateProduct(@Param('id') prodId, @Body() prod: ProductDTO):Promise<IProducts>{
         return this.productsService.update(prodId, prod).then((result)=>{
             if(result){
                 return result;
@@ -88,14 +88,12 @@ export class ProductsContoller {
         }).catch(() =>{
             throw new HttpException('Product not found', HttpStatus.NOT_FOUND);
         });
-        /*this.productsService.updateProduct(prodId,prodTitle,prodDescr,prodIdPrice);
-        return null;*/
     }
 
     @Delete(':id')
     @CacheKey('oneProductDelete')
     @CacheTTL(30)
-    removeProduct(@Param('id') prodId):Promise<Product>{
+    removeProduct(@Param('id') prodId):Promise<IProducts>{
         return this.productsService.delete(prodId).then((result)=>{
             if(result){
                 return result;

@@ -1,48 +1,64 @@
-import { Controller, Post, Body, Get, Param, Patch, Delete, HttpStatus} from "@nestjs/common";
-import { ProductsAdd } from "../Domain/Products/AddProducts";
-import {ProductFind} from "../Domain/Products/GetAllProducts";
-import {ProductFindSingle} from "../Domain/Products/GetSingleProducts";
-import {ProductUpdate} from "../Domain/Products/UpdateProducts";
-import {ProductRemove} from "../Domain/Products/DeleteProducts";
-//import { ProductsService } from "./products.service";
+import { Controller, Post, Body, Get, Param, Patch, Delete, HttpException, HttpStatus, UseFilters, UsePipes, CacheKey, CacheTTL, UseInterceptors, CacheInterceptor, Render, Inject} from "@nestjs/common";
+import { ProductDTO } from "src/products/API/Products/ProductDTO";
+import {IProducts} from 'src/products/Domain/Products/IProducts';
+import {HttpExceptionFilter} from 'src/products/Utilities/Filters/http-exception.filter';
+import { ValidationPipe } from "src/products/Utilities/Pipes/validation.pipe";
+import { ProductData } from "src/products/Utilities/decorators/productsData.decorator";
+import {BenchmarkInterceptor} from "src/products/Utilities/interceptors/benchmark.interceptors";
+//import { ProductsService } from "src/products/products.service";
+//TODO: call functions from IProductsRepository 
+
 @Controller('products')
+@UseInterceptors(CacheInterceptor, BenchmarkInterceptor)
+//@UseFilters(HttpExceptionFilter)
+//@UsePipes(ValidationPipe)
 export class ProductsContoller {
     constructor(
+        @Inject('ProductsRepository') private readonly IProductsRepository,
         //private readonly productsService: ProductsService,
-        private readonly AddProd: ProductsAdd,
-        private readonly AllProdGet: ProductFind,
-        private readonly SingleProdGet: ProductFindSingle,
-        private readonly UpdateProd: ProductUpdate,
-        private readonly RemoveProd: ProductRemove,
     ){}
 
     @Post()
-    public async addProducts(@Body('title') prodTitle: string, @Body('description') prodDescript: string, @Body('price') prodPrice: number): Promise<HttpStatus>{
-        await this.AddProd.AddProduct(prodTitle,prodDescript,prodPrice);
-        return HttpStatus.CREATED;
+    @CacheKey('oneProductCreate')
+    @CacheTTL(30)
+    addProducts(@ProductData() prod: ProductDTO) :Promise<IProducts>{
+        return this.IProductsRepository.AddProduct(prod);
     }
 
+    //Get function before MVC
+    /*@Get()
+    @CacheKey('allProductGet')
+    @CacheTTL(30)
+    async getAll():Promise<Product>{
+        return await this.IProductsRepository.GetAllProducts();
+    }*/
     @Get()
-    public async getAllProducts(): Promise<HttpStatus>{
-        let generatedProducts = await this.AllProdGet.GetAllProducts();
-        return HttpStatus.OK;
+    @CacheKey('allProductGet')
+    @CacheTTL(30)
+    @Render('job/index')
+    root(){
+        return this.IProductsRepository.GetAllProducts();
     }
+
 
     @Get(':id')
-    public async getProduct(@Param('id') prodId: string):Promise<HttpStatus>{
-        let generatedProducts = await this.SingleProdGet.GetProduct(prodId);
-        return HttpStatus.OK;
+    @CacheKey('oneProductGet')
+    @CacheTTL(30)
+    getProduct(@Param('id') prodId) :Promise<IProducts>{
+        return this.IProductsRepository.GetProduct(prodId);
     }
-//
+
     @Patch(':id')
-    public async updateProduct(@Param('id') prodId: string, @Body('title') prodTitle: string, @Body('descr') prodDescr: string, @Body('price') prodIdPrice: number):Promise<HttpStatus>{
-        await this.UpdateProd.UpdateProduct(prodId,prodTitle,prodDescr,prodIdPrice);
-        return HttpStatus.OK;
+    @CacheKey('oneProductUpdate')
+    @CacheTTL(30)
+    updateProduct(@Param('id') prodId, @Body() prod: ProductDTO):Promise<IProducts>{
+        return this.IProductsRepository.UpdateProduct(prodId,prod);
     }
 
     @Delete(':id')
-    public async removeProduct(@Param('id') prodId: string):Promise<HttpStatus>{
-        await this.RemoveProd.DeleteProduct(prodId);
-        return HttpStatus.OK;
+    @CacheKey('oneProductDelete')
+    @CacheTTL(30)
+    removeProduct(@Param('id') prodId):Promise<IProducts>{
+        return this.IProductsRepository.RemoveProduct(prodId);
     }
 }

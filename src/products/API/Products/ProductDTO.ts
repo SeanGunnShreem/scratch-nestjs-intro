@@ -1,7 +1,7 @@
 import{IsString,IsInt} from 'class-validator';
 
 //the product DTO we receive from the client
-export class CreateProductDTO{
+export class ProductDTO{
     @IsString()
     readonly id: string;
 

@@ -1,19 +1,15 @@
 import { Injectable } from "@nestjs/common";
 import { IProducts } from "./IProducts";
-import { IProductsRepository, ProductsRepository } from "./IProductsRepository";
-
+import { InjectModel } from "@nestjs/mongoose";
+import {Model} from 'mongoose';
 
 @Injectable()
 export class DeleteProduct{
     constructor(
-        @ProductsRepository() private readonly productRepository: IProductsRepository,
-
+        @InjectModel('Product') private readonly ProductModel: Model<IProducts>
     ){}
 
-
-    public async DeleteProduct(prodId: string):Promise<void>{
-        const product = await this.productRepository.RemoveProduct(prodId);
-        return product;
+    async delete(prodId: string):Promise<IProducts>{
+        return await this.ProductModel.findByIdAndRemove(prodId);
     }
-
-}
+} 
