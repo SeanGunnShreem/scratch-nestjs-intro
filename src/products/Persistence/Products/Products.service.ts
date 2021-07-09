@@ -4,9 +4,10 @@ import { InjectModel } from "@nestjs/mongoose";
 import {IProducts} from '../../Domain/Products/IProducts';
 import {Model} from 'mongoose';
 import { ProductDTO } from "../../API/Products/ProductDTO";
+import {ProductGQL} from "../../API/Products/schema.graphql";
 @Injectable()
 export class ProductsService{
-    constructor(@InjectModel('Product') private readonly ProductModel: Model<IProducts>){}
+    constructor(@InjectModel('Product') private readonly ProductModel: Model<IProducts>, private readonly prodGql: ProductGQL){}
 
     async create(product: ProductDTO):Promise<IProducts>{
         const newProduct = new this.ProductModel(product);

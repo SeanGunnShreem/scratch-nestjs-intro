@@ -1,0 +1,26 @@
+type ProductGQL{
+    id: ID!
+    title: String!
+    description: String!
+    price: Number!
+}
+
+type Query {
+    products: [Product!]!
+}
+
+input NewProduct{
+    title: String!
+    description: String!
+    price: Number!
+}
+ type Mutation {
+     create(input: NewProduct!): ProductGQL!
+     update(input: NewProduct!): ProductGQL!
+     delete(input: NewProduct!): ProductGQL!
+ }
+
+ type Subscription{
+     productAdded(title: String!): ProductGQL
+ }
+

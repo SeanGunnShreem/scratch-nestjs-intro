@@ -5,9 +5,10 @@ import {HttpExceptionFilter} from 'src/products/Utilities/Filters/http-exception
 import { ValidationPipe } from "src/products/Utilities/Pipes/validation.pipe";
 import { ProductData } from "src/products/Utilities/decorators/productsData.decorator";
 import {BenchmarkInterceptor} from "src/products/Utilities/interceptors/benchmark.interceptors";
+import { ApiForbiddenResponse, ApiOkResponse, ApiTags } from "@nestjs/swagger";
 //import { ProductsService } from "src/products/products.service";
 //TODO: call functions from IProductsRepository 
-
+@ApiTags('products')
 @Controller('products')
 @UseInterceptors(CacheInterceptor, BenchmarkInterceptor)
 //@UseFilters(HttpExceptionFilter)
@@ -19,6 +20,8 @@ export class ProductsContoller {
     ){}
 
     @Post()
+    @ApiOkResponse({description: 'Product has been added to the database.'})
+    @ApiForbiddenResponse({description: 'Forbidden.'})
     @CacheKey('oneProductCreate')
     @CacheTTL(30)
     addProducts(@ProductData() prod: ProductDTO) :Promise<IProducts>{
@@ -26,22 +29,28 @@ export class ProductsContoller {
     }
 
     //Get function before MVC
-    /*@Get()
+    @Get()
+    @ApiOkResponse({description: 'Product list has been successfully returned.'})
+    @ApiForbiddenResponse({description: 'Forbidden.'})
     @CacheKey('allProductGet')
     @CacheTTL(30)
-    async getAll():Promise<Product>{
+    async getAll():Promise<IProducts>{
         return await this.IProductsRepository.GetAllProducts();
-    }*/
-    @Get()
+    }
+/*     @Get()
+    @ApiOkResponse({description: 'Product list has been successfully returned.'})
+    @ApiForbiddenResponse({description: 'Forbidden.'})
     @CacheKey('allProductGet')
     @CacheTTL(30)
     @Render('job/index')
     root(){
         return this.IProductsRepository.GetAllProducts();
-    }
+    } */
 
 
     @Get(':id')
+    @ApiOkResponse({description: 'Product has been successfully returned.'})
+    @ApiForbiddenResponse({description: 'Forbidden.'})
     @CacheKey('oneProductGet')
     @CacheTTL(30)
     getProduct(@Param('id') prodId) :Promise<IProducts>{
@@ -49,6 +58,8 @@ export class ProductsContoller {
     }
 
     @Patch(':id')
+    @ApiOkResponse({description: 'Product has been successfully updated in the database.'})
+    @ApiForbiddenResponse({description: 'Forbidden.'})
     @CacheKey('oneProductUpdate')
     @CacheTTL(30)
     updateProduct(@Param('id') prodId, @Body() prod: ProductDTO):Promise<IProducts>{
@@ -56,6 +67,8 @@ export class ProductsContoller {
     }
 
     @Delete(':id')
+    @ApiOkResponse({description: 'Product list has been successfully deleted from the database.'})
+    @ApiForbiddenResponse({description: 'Forbidden.'})
     @CacheKey('oneProductDelete')
     @CacheTTL(30)
     removeProduct(@Param('id') prodId):Promise<IProducts>{
